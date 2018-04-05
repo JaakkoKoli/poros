@@ -19,6 +19,8 @@ const config = require('./utils/config')
 const mongoose = require('mongoose')
 const poroutils = require('./utils/poroutils')
 
+console.log('test build 1')
+
 mongoose
   .connect(config.mongoUrl)
   .then(() => {
