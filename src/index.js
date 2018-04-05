@@ -222,7 +222,7 @@ app.get('/login', async (request, response) => {
           User.find({ twitchid: r.data.token.user_id })
           var types = await Type.find()
           var newPoro = poroutils.getPoro(types, currentUser2._id)
-          var newporo2 = await Poro(newPoro).save()
+          var newPoro2 = await Poro(newPoro).save()
           currentUser2.mainporo = newPoro2._id
           if (currentUser2.poros === undefined) {
             currentUser2.poros = [newPoro2._id]
