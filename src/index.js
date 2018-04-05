@@ -37,6 +37,9 @@ app.use('/api/poros', porosRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/types', typesRouter)
 
+app.get('/debug', async (request, response) => {
+  response.send('works')
+})
 
 app.get('/validate', async (request, response) => {
   try {
