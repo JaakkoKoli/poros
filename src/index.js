@@ -265,10 +265,6 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
 
-server.on('close', () => {
+app.on('close', () => {
   mongoose.connection.close()
 })
-
-module.exports = {
-  app, server
-}
