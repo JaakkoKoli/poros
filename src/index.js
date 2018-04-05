@@ -63,7 +63,7 @@ app.get('/validate', async (request, response) => {
           .populate({ path: 'poros', populate: { path: 'type', model: Type } })
           .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
         user1 = user1[0]
-        if (u1.data.token.user_name != user1.name) {
+        if (u1.data.token.user_name !== user1.name) {
           var user = await User(user1).save()
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
             .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
@@ -94,14 +94,14 @@ app.get('/validate', async (request, response) => {
         .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
       user1 = user1[0]
       if (r.data.token.user_name !== user1.name) {
-        var user = await User(user1).save()
+        var user2 = await User(user1).save()
           .populate({ path: 'poros', populate: { path: 'type', model: Type } })
           .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
           .populate({ path: 'helmet', populate: { path: 'statchange', model: StatChange } })
           .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
           .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
           .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-        response.send({ valid: true, user, access_token: r.data.access_token, refresh_token: r.data.refresh_token })
+        response.send({ valid: true, user: user2, access_token: r.data.access_token, refresh_token: r.data.refresh_token })
       } else {
         let aToken = request.get('access_token')
         let rToken = request.get('refresh_token')
