@@ -31,8 +31,8 @@ mongoose
 mongoose.Promise = global.Promise
 
 app.use(cors())
-app.use(bodyParser.json())
 app.use(express.static('build'))
+app.use(bodyParser.json())
 app.use('/api/poros', porosRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/types', typesRouter)
@@ -270,16 +270,10 @@ app.get('/login', async (request, response) => {
   }
 })
 
-const server = http.createServer(app)
-
-server.listen(config.port, () => {
+app.listen(config.port, () => {
   console.log(`Server running on port ${config.port}`)
 })
 
-server.on('close', () => {
+app.on('close', () => {
   mongoose.connection.close()
 })
-
-module.exports = {
-  app, server
-}
