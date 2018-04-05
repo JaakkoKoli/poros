@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const axios = require('axios')
-const cors = require('cors')
+
 const Poro = require('./models/poro')
 const User = require('./models/user')
 const Type = require('./models/type')
@@ -29,7 +29,7 @@ mongoose
 
 mongoose.Promise = global.Promise
 
-app.use(cors())
+
 app.use(express.static('build'))
 app.use(bodyParser.json())
 app.use('/api/poros', porosRouter)
