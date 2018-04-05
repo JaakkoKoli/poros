@@ -1,8 +1,9 @@
+const http = require('http')
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const axios = require('axios')
-
+const cors = require('cors')
 const Poro = require('./models/poro')
 const User = require('./models/user')
 const Type = require('./models/type')
@@ -29,9 +30,9 @@ mongoose
 
 mongoose.Promise = global.Promise
 
-
-app.use(express.static('build'))
+app.use(cors())
 app.use(bodyParser.json())
+app.use(express.static('build'))
 app.use('/api/poros', porosRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/types', typesRouter)
@@ -269,10 +270,16 @@ app.get('/login', async (request, response) => {
   }
 })
 
-app.listen(config.port, () => {
+const server = http.createServer(app)
+
+server.listen(config.port, () => {
   console.log(`Server running on port ${config.port}`)
 })
 
-app.on('close', () => {
+server.on('close', () => {
   mongoose.connection.close()
 })
+
+module.exports = {
+  app, server
+}
