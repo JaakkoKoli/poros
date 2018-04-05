@@ -12,11 +12,20 @@ const config = require('./utils/config')
 const mongoose = require('mongoose')
 const poroutils = require('./utils/poroutils')
 
+mongoose
+  .connect(config.mongoUrl)
+  .then(() => {
+    console.log('connected to database', config.mongoUrl)
+  })
+  .catch(err => {
+    console.log(err)
+  })
 
+mongoose.Promise = global.Promise
 
 app.use(cors())
-app.use(bodyParser.json())
 app.use(express.static('build'))
+app.use(bodyParser.json())
 
 app.get('/debug', async (request, response) => {
   response.send('works')
@@ -251,13 +260,14 @@ app.get('/login', async (request, response) => {
   }
 })
 
-const server = http.createServer(app)
-
-server.listen(config.port, () => {
-  console.log(`Server running on port ${config.port}`)
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
 })
 
-
+server.on('close', () => {
+  mongoose.connection.close()
+})
 
 module.exports = {
   app, server
