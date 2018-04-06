@@ -24,6 +24,7 @@ mongoose
 mongoose.Promise = global.Promise
 
 app.use(cors())
+app.use(express.static('build'))
 app.use(bodyParser.json())
 
 app.get('/debug', async (request, response) => {
@@ -259,10 +260,16 @@ app.get('/login', async (request, response) => {
   }
 })
 
-app.listen(config.port, () => {
+const server = http.createServer(app)
+
+server.listen(config.port, () => {
   console.log(`Server running on port ${config.port}`)
 })
 
 server.on('close', () => {
   mongoose.connection.close()
 })
+
+module.exports = {
+  app, server
+}
