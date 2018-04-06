@@ -20,6 +20,6 @@ app.get('/debug', async (request, response) => {
   response.send('works')
 })
 
-app.listen(config.port, () => {
+app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${config.port}`)
 })
