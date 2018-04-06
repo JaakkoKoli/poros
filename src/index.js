@@ -31,12 +31,12 @@ mongoose
 mongoose.Promise = global.Promise
 
 app.use(cors())
-app.use(express.static('build'))
 app.use(bodyParser.json())
+app.use(express.static('build'))
+app.use('/api/poros', porosRouter)
+app.use('/api/users', usersRouter)
+app.use('/api/types', typesRouter)
 
-app.get('/debug', async (request, response) => {
-  response.send('works')
-})
 
 app.get('/validate', async (request, response) => {
   try {
@@ -63,8 +63,8 @@ app.get('/validate', async (request, response) => {
           .populate({ path: 'poros', populate: { path: 'type', model: Type } })
           .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
         user1 = user1[0]
-        if (u1.data.token.user_name !== user1.name) {
-          var user = await User(user1).save()
+        if (u1.data.token.user_name != user1.name) {
+          user = await User(user1).save()
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
             .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
             .populate({ path: 'helmet', populate: { path: 'statchange', model: StatChange } })
@@ -85,7 +85,7 @@ app.get('/validate', async (request, response) => {
         }
       }
     } else {
-      user1 = await User.find({ twitchid: r.data.token.user_id })
+      var user1 = await User.find({ twitchid: r.data.token.user_id })
         .populate({ path: 'poros', populate: { path: 'type', model: Type } })
         .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
         .populate({ path: 'helmet', populate: { path: 'statchange', model: StatChange } })
@@ -93,15 +93,15 @@ app.get('/validate', async (request, response) => {
         .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
         .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
       user1 = user1[0]
-      if (r.data.token.user_name !== user1.name) {
-        var user2 = await User(user1).save()
+      if (r.data.token.user_name != user1.name) {
+        var user = await User(user1).save()
           .populate({ path: 'poros', populate: { path: 'type', model: Type } })
           .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
           .populate({ path: 'helmet', populate: { path: 'statchange', model: StatChange } })
           .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
           .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
           .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-        response.send({ valid: true, user: user2, access_token: r.data.access_token, refresh_token: r.data.refresh_token })
+        response.send({ valid: true, user, access_token: r.data.access_token, refresh_token: r.data.refresh_token })
       } else {
         let aToken = request.get('access_token')
         let rToken = request.get('refresh_token')
@@ -248,14 +248,14 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
           response.send({ user: user1, new_account: true, access_token: res.data.access_token, refresh_token: res.data.refresh_token })
         } else {
-          var user2 = await User.findById(currentUser[0]._id)
+          var user1 = await User.findById(currentUser[0]._id)
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
             .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
             .populate({ path: 'helmet', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-          response.send({ user: user2, new_account: false, access_token: res.data.access_token, refresh_token: res.data.refresh_token })
+          response.send({ user: user1, new_account: false, access_token: res.data.access_token, refresh_token: res.data.refresh_token })
         }
       }
     } else {
