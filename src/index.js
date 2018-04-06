@@ -12,8 +12,8 @@ const mongoose = require('mongoose')
 const poroutils = require('./utils/poroutils')
 
 
-app.use(cors())
-app.use(express.static('build'))
+
+
 app.use(bodyParser.json())
 
 app.get('/debug', async (request, response) => {
