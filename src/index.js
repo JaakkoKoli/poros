@@ -1,3 +1,4 @@
+const http = require('http')
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
@@ -259,10 +260,16 @@ app.get('/login', async (request, response) => {
   }
 })
 
-app.listen(config.port, () => {
+const server = http.createServer(app)
+
+server.listen(config.port, () => {
   console.log(`Server running on port ${config.port}`)
 })
 
-app.on('close', () => {
+server.on('close', () => {
   mongoose.connection.close()
 })
+
+module.exports = {
+  app, server
+}
