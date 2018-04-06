@@ -1,27 +1,23 @@
 {
-  "name": "puhelinluettelo",
+  "name": "porosite",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.2",
     "cors": "^2.8.4",
-    "dotenv": "^5.0.0",
+    "dotenv": "^5.0.1",
     "express": "^4.16.2",
-    "mongoose": "^5.0.4",
-    "morgan": "^1.9.0",
+    "mongoose": "^5.0.6",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "react-scripts": "1.1.0"
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.1.1"
   },
   "scripts": {
-    "start": "node src/index.js",
-    "watch": "nodemon src/index.js",
+    "start": "react-scripts start",
     "build": "react-scripts build",
-	"lint": "eslint .",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  },
-  "devDependencies": {
-    "eslint": "^4.17.0",
-    "nodemon": "^1.14.12"
   }
 }
