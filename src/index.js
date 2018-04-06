@@ -24,8 +24,8 @@ mongoose
 mongoose.Promise = global.Promise
 
 app.use(cors())
+app.use('/', express.static('build'))
 app.use(bodyParser.json())
-app.use(express.static('build'))
 
 app.get('/debug', async (request, response) => {
   response.send('works')
