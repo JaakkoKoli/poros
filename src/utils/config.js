@@ -4,7 +4,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const port = process.env.PORT
 const mongoUrl = process.env.MONGODB_URI
-const secret = process.env.secret
+const secret = process.env.SECRET
 const client_id = process.env.CLIENT_ID
 const no_weapon = process.env.NO_WEAPON_ID
 const no_misc = process.env.NO_MISC_ID
