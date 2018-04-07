@@ -274,7 +274,7 @@ app.get('/setmainporo', async (request, response) => {
       const token = request.query.token
       const conf = {
         "headers": {
-          "Authorization": 'OAuth ' + res.data.access_token,
+          "Authorization": 'OAuth ' + token,
           "Accept": 'application/vnd.twitchtv.v5+json',
           "Client-ID": config.client_id
         }
