@@ -280,11 +280,7 @@ app.get('/setmainporo', async (request, response) => {
         }
       }
       var r = await axios.get('https://api.twitch.tv/kraken', conf)
-      var currentUser = await User.find({ twitchid: r.data.token.user_id })
-      console.log(currentUser)
-      console.log(currentUser.poros)
-      console.log(currentUser.poros.filter(x => x === id))
-      console.log(currentUser.poros.filter(x => x === id).length)
+      var currentUser = await User.findById(r.data.token.user_id)
       if(currentUser.poros.filter(x => x === id).length>0){
         const u = await User.findByIdAndUpdate(currentUser._id, {$set: {mainporo: id}})
         response.send({user: u})
