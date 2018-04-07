@@ -177,7 +177,7 @@ app.get('/buyporo', async (request, response) => {
     } else {
       response.send({ error: 'invalid session' })
     }
-  } catch (exception) {
+  }catch (exception) {
     response.send(exception)
   }
 })
@@ -190,8 +190,10 @@ app.get('/data', (request, response) => {
 app.get('/login', async (request, response) => {
   try {
     if (request.query.code) {
+      console.log(request.query.code)
       const code = request.query.code
       const req = 'https://api.twitch.tv/api/oauth2/token?client_id=' + config.client_id + '&client_secret=' + config.secret + '&code=' + code + '&grant_type=authorization_code&redirect_uri=https://poros.herokuapp.com/'
+      console.log(req)
       var res = await axios.post(req)
       console.log(res.data)
       if (res.data.access_token) {
@@ -263,7 +265,7 @@ app.get('/login', async (request, response) => {
     } else {
       response.send({ error: 'missing code' })
     }
-  } catch (exception) {
+  }catch (exception) {
     console.log('error')
     response.send({exception})
   }
