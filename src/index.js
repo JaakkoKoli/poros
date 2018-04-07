@@ -267,6 +267,32 @@ app.get('/login', async (request, response) => {
   }
 })
 
+app.get('/setmainporo', async (request, response) => {
+  try {
+    if (request.query.id&&request.query.token) {
+      const id = request.query.id
+      const token = request.query.token
+      const conf = {
+        "headers": {
+          "Authorization": 'OAuth ' + res.data.access_token,
+          "Accept": 'application/vnd.twitchtv.v5+json',
+          "Client-ID": config.client_id
+        }
+      }
+      var r = await axios.get('https://api.twitch.tv/kraken', conf)
+      var currentUser = await User.find({ twitchid: r.data.token.user_id })
+      if(currentUser.poros.filter(x => x === id).length>0){
+        User.findByIdAndUpdate(currentUser._id, {$set: {mainporo: id}})
+      }
+    } else {
+      response.send({ error: 'missing id' })
+    }
+  }catch (exception) {
+    console.log('error')
+    response.send({exception})
+  }
+})
+
 const server = http.createServer(app)
 
 server.listen(config.port, () => {
