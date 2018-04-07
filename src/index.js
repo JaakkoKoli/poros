@@ -193,6 +193,7 @@ app.get('/login', async (request, response) => {
       const code = request.query.code
       const req = 'https://api.twitch.tv/api/oauth2/token?client_id=' + config.client_id + '&client_secret=' + config.secret + '&code=' + code + '&grant_type=authorization_code&redirect_uri=https://poros.herokuapp.com/'
       var res = await axios.post(req)
+      console.log(res.data)
       if (res.data.access_token) {
         const conf = {
           "headers": {
