@@ -188,11 +188,8 @@ app.get('/data', (request, response) => {
 })
 
 app.get('/login', async (request, response) => {
-  console.log('point 1')
   try {
-    console.log('point 2')
     if (request.query.code) {
-      console.log('point 3')
       const code = request.query.code
       const req = 'https://api.twitch.tv/api/oauth2/token?client_id=' + config.client_id + '&client_secret=' + config.secret + '&code=' + code + '&grant_type=authorization_code&redirect_uri=https://poros.herokuapp.com/'
       var res = await axios.post(req)
@@ -204,8 +201,8 @@ app.get('/login', async (request, response) => {
             "Client-ID": config.client_id
           }
         }
-        console.log('point 4')
         var r = await axios.get('https://api.twitch.tv/kraken', conf)
+        console.log(r.data)
         var currentUser = await User.find({ twitchid: r.data.token.user_id })
         if (currentUser.length === 0) {
           const newUser = User({
@@ -259,7 +256,6 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-            console.log('point 5')
           response.send({ user: user1, new_account: false, access_token: res.data.access_token, refresh_token: res.data.refresh_token })
         }
       }
