@@ -32,6 +32,7 @@ mongoose.Promise = global.Promise
 
 app.use(cors())
 app.use(bodyParser.json())
+app.use(express.static('build'))
 app.use('/api/poros', porosRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/types', typesRouter)
