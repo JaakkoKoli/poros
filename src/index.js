@@ -294,6 +294,8 @@ app.get('/setmainporo', async (request, response) => {
   }
 })
 
+app.use('/*', express.static('build'))
+
 const server = http.createServer(app)
 
 server.listen(config.port, () => {
