@@ -131,7 +131,7 @@ app.get('/addsnacks', async (request, response) => {
         .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
         .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
         .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-      response.send('Added '+request.query.amount+' snacks to user '+request.query.username)
+      response.send({message: 'Added '+request.query.amount+' snacks to user '+request.query.username, user: res})
     } else {
       response.send('error')
     }
