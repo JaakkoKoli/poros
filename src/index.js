@@ -8,16 +8,30 @@ const Poro = require('./models/poro')
 const User = require('./models/user')
 const Type = require('./models/type')
 const Helmet = require('./models/helmet')
+const Session = require('./models/session')
 const Weapon = require('./models/weapon')
 const Misc = require('./models/misc')
 const StatChange = require('./models/statchange')
 const Footwear = require('./models/footwear')
+const bcrypt = require('bcrypt')
 const porosRouter = require('./controllers/poros')
 const usersRouter = require('./controllers/users')
 const typesRouter = require('./controllers/types')
 const config = require('./utils/config')
 const mongoose = require('mongoose')
 const poroutils = require('./utils/poroutils')
+
+const generateToken = () => {
+  return(Math.round(Math.random()*10000000))
+}
+
+const createSession = (id) => {
+  var token = generateToken()
+  bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
+    Session.save({hash, id, created: new Date()})
+  })
+  return(token)
+}
 
 mongoose
   .connect(config.mongoUrl)
@@ -37,6 +51,27 @@ app.use('/api/poros', porosRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/types', typesRouter)
 
+app.get('/validatesession', async (request, response) => {
+  try{
+    var currentSession = await Session.find({userid: request.get('id')})[0]
+    bcrypt.compare(request.get('token'), currentSession.hash, function(err, res) {
+      if(currentSession.created.getTime()<new Date().getTime() && res){
+        userdata = await User.findById(request.get('id'))
+          .populate({ path: 'poros', populate: { path: 'type', model: Type } })
+          .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
+          .populate({ path: 'helmet', populate: { path: 'statchange', model: StatChange } })
+          .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
+          .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
+          .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
+        response.send({valid: true, user: userdata})
+      }else{
+        response.send({valid: false})
+      }
+    })
+  }catch(e){
+    response.send({valid: false})
+  }
+})
 
 app.get('/validate', async (request, response) => {
   try {
@@ -189,7 +224,7 @@ app.get('/data', (request, response) => {
 
 app.get('/login', async (request, response) => {
   try {
-    if (request.query.code) {
+    if (request.query.code) { // OAuth
       const code = request.query.code
       const req = 'https://api.twitch.tv/api/oauth2/token?client_id=' + config.client_id + '&client_secret=' + config.secret + '&code=' + code + '&grant_type=authorization_code&redirect_uri=https://poros.herokuapp.com/'
       var res = await axios.post(req)
@@ -202,8 +237,8 @@ app.get('/login', async (request, response) => {
           }
         }
         var r = await axios.get('https://api.twitch.tv/kraken', conf)
-        var currentUser = await User.find({ twitchid: r.data.token.user_id })
-        if (currentUser.length === 0) {
+        var currentUser = await User.find({ twitchid: r.data.token.user_id }) // Is user in database?
+        if (currentUser.length === 0) { // Create a DB entry
           const newUser = User({
             name: r.data.token.user_name,
             twitchid: r.data.token.user_id,
@@ -246,7 +281,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-          response.send({ user: user1, new_account: true, access_token: res.data.access_token, refresh_token: res.data.refresh_token })
+          response.send({ user: user1, new_account: true, access_token: res.data.access_token, refresh_token: res.data.refresh_token, session: createSession(user1._id) })
         } else {
           var user1 = await User.findById(currentUser[0]._id)
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
@@ -255,7 +290,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-          response.send({ user: user1, new_account: false, access_token: res.data.access_token, refresh_token: res.data.refresh_token })
+          response.send({ user: user1, new_account: false, access_token: res.data.access_token, refresh_token: res.data.refresh_token, session: createSession(user1._id) })
         }
       }
     } else {
