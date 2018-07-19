@@ -1,6 +1,7 @@
 const usersRouter = require('express').Router()
 const User = require('../models/user')
 
+/**
 usersRouter.get('/', async (request, response) => {
     try{
         const users = await User.find({})
@@ -10,6 +11,7 @@ usersRouter.get('/', async (request, response) => {
         response.status(400).send({ error: 'malformatted id' })
     }
 })
+*/
 
 usersRouter.get('/:id', async (request, response) => {
     try{

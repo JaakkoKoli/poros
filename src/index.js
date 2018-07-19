@@ -53,16 +53,26 @@ app.use('/api/types', typesRouter)
 
 app.get('/validatesession', async (request, response) => {
   try{
-    var currentSession = await Session.find({userid: request.get('id')})[0]
-    bcrypt.compare(request.get('token'), currentSession.hash, function(err, res) {
+    var currentSession = await Session.find({userid: request.get('Id')})[0]
+    bcrypt.compare(request.get('Token'), currentSession.hash, function(err, res) {
       if(currentSession.created.getTime()<new Date().getTime() && res){
-        userdata = await User.findById(request.get('id'))
+        User.find({userid: request.get('Id')})
           .populate({ path: 'poros', populate: { path: 'type', model: Type } })
           .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
           .populate({ path: 'helmet', populate: { path: 'statchange', model: StatChange } })
           .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
           .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
           .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
+          .then(result => {
+            if(result){
+              response.send({valid: true, user: result})
+            }else{
+              response.send({valid: false})
+            }
+          })
+          .catch(error => {
+            response.send({valid: false})
+          })
         response.send({valid: true, user: userdata})
       }else{
         response.send({valid: false})
@@ -251,7 +261,9 @@ app.get('/login', async (request, response) => {
             footwear: config.no_footwear,
             poros: [],
             items: [],
-            achievements: []
+            achievements: [],
+            access_token: res.data.access_token,
+            refresh_token: res.data.refresh_token
           })
           var currentUser2 = await newUser.save()
           User.find({ twitchid: r.data.token.user_id })
@@ -274,6 +286,7 @@ app.get('/login', async (request, response) => {
           }
           var userData = await axios.get('https://api.twitch.tv/helix/users?id=' + r.data.token.user_id, conf2)
           currentUser2.picture = userData.data.data[0].profile_image_url
+          const removeTokens = ({name, twitchid, snacks, picture, weapon, helmet, footwear, misc, mainporo, poros, items, achievements}) => ({name, twitchid, snacks, picture, weapon, helmet, footwear, misc, mainporo, poros, items, achievements})
           var user1 = await User.findByIdAndUpdate(currentUser2._id, { $set: { mainporo: currentUser2.mainporo, poros: currentUser2.poros, picture: currentUser2.picture } })
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
             .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
@@ -281,7 +294,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-          response.send({ user: user1, new_account: true, access_token: res.data.access_token, refresh_token: res.data.refresh_token, session: createSession(user1._id) })
+          response.send({ user: removetokens(user1), new_account: true, session: createSession(user1._id) })
         } else {
           var user1 = await User.findById(currentUser[0]._id)
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
@@ -290,7 +303,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-          response.send({ user: user1, new_account: false, access_token: res.data.access_token, refresh_token: res.data.refresh_token, session: createSession(user1._id) })
+          response.send({ user: removetokens(user1), new_account: false, session: createSession(user1._id) })
         }
       }
     } else {
@@ -298,7 +311,7 @@ app.get('/login', async (request, response) => {
     }
   }catch (exception) {
     console.log('error')
-    response.send({exception})
+    response.send({error: exception})
   }
 })
 

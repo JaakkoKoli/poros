@@ -12,7 +12,9 @@ const User = mongoose.model('User', {
     mainporo: { type: mongoose.Schema.Types.ObjectId, ref: 'Poro' },
     poros: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Poro' }],
     items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
-    achievements: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Achievement' }]
+    achievements: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Achievement' }],
+    access_token: String,
+    refresh_token: String
 })
 
 module.exports = User
