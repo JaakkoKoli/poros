@@ -301,12 +301,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-          var s = createSession(user1._id)
-          if(s){
-            response.send({ user: removetokens(user1), new_account: true, session: s })
-          }else{
-            response.send({ error: 'error' })
-          }
+          response.send({ user: removetokens(user1), new_account: true, session: createSession(user1._id) })
         } else {
           var user1 = await User.findById(currentUser[0]._id)
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
@@ -315,12 +310,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-            var s = createSession(user1._id)
-          if(s){
-            response.send({ user: removetokens(user1), new_account: false, session: s })
-          }else{
-            response.send({ error: 'error' })
-          }
+          response.send({ user: removetokens(user1), new_account: false, session: createSession(user1._id) })
         }
       }
     } else {
