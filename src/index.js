@@ -29,13 +29,14 @@ const createSession = (id) => {
   var token = generateToken()
   console.log(token)
   bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
-    Session({hash: hash, id: id, created: new Date()}).save()
+    var session = Session({hash: hash, id: id, created: new Date()})
+    session.save()
       .then(res => {
         console.log(res)
         return(token)
       })
       .catch(error=> {
-        console.log(error)
+        console.log("error: "+error)
         return(null)
       })
   })
