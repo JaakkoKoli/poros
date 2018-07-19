@@ -301,6 +301,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
+          console.log(createSession(user1._id))
           response.send({ user: removeTokens(user1), new_account: true, session: createSession(user1._id) })
         } else {
           var user1 = await User.findById(currentUser[0]._id)
@@ -310,6 +311,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
+          console.log(createSession(user1._id))
           response.send({ user: removeTokens(user1), new_account: false, session: createSession(user1._id) })
         }
       }
