@@ -245,13 +245,10 @@ app.get('/login', async (request, response) => {
   try {
     if (request.query.code) { // OAuth
       const code = request.query.code
-      console.log(code)
       const req = 'https://api.twitch.tv/api/oauth2/token?client_id=' + config.client_id + '&client_secret=' + config.secret + '&code=' + code + '&grant_type=authorization_code&redirect_uri=https://poros.herokuapp.com/'
-      console.log("5")
+      console.log(req)
       var res = await axios.post(req)
-      console.log("6")
       if (res.data.access_token) {
-        console.log("7")
         const conf = {
           "headers": {
             "Authorization": 'OAuth ' + res.data.access_token,
@@ -259,11 +256,8 @@ app.get('/login', async (request, response) => {
             "Client-ID": config.client_id
           }
         }
-        console.log("8")
         var r = await axios.get('https://api.twitch.tv/kraken', conf)
-        console.log("9")
         var currentUser = await User.find({ twitchid: r.data.token.user_id }) // Is user in database?
-        console.log("10"+currentUser)
         if (currentUser.length === 0) { // Create a DB entry
           const newUser = User({
             name: r.data.token.user_name,
