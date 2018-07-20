@@ -25,22 +25,6 @@ const generateToken = () => {
   return(Math.round(Math.random()*10000000))
 }
 
-const createSession = (id) => {
-  var token = generateToken()
-  bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
-    var session = Session({hash: hash, id: id, created: new Date()})
-    session.save()
-      .then(res => {
-        console.log(res)
-        return(token)
-      })
-      .catch(error=> {
-        console.log("error: "+error)
-        return(null)
-      })
-  })
-}
-
 mongoose
   .connect(config.mongoUrl)
   .then(() => {
@@ -61,9 +45,13 @@ app.use('/api/types', typesRouter)
 
 app.get('/validatesession', async (request, response) => {
   try{
+    console.log(request.get('Id'))
     var currentSession = await Session.find({userid: request.get('Id')})[0]
+    console.log(currentSession)
     bcrypt.compare(request.get('Token'), currentSession.hash, function(err, res) {
-      if(currentSession.created.getTime()<new Date().getTime() && res){
+      console.log(currentSession.created.getTime()+604800000+" : "+new Date().getTime())
+      console.log("res: "+res)
+      if(currentSession.created.getTime()+604800000>new Date().getTime() && res){
         User.find({twitchid: request.get('Id')})
           .populate({ path: 'poros', populate: { path: 'type', model: Type } })
           .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
@@ -83,6 +71,7 @@ app.get('/validatesession', async (request, response) => {
           })
         response.send({valid: true, user: userdata})
       }else{
+        Session.deleteMany({userid: request.get('Id')})
         response.send({valid: false})
       }
     })
