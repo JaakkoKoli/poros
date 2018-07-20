@@ -294,7 +294,6 @@ app.get('/login', async (request, response) => {
           }
           var userData = await axios.get('https://api.twitch.tv/helix/users?id=' + r.data.token.user_id, conf2)
           currentUser2.picture = userData.data.data[0].profile_image_url
-          const removeTokens = ({name, twitchid, snacks, picture, weapon, helmet, footwear, misc, mainporo, poros, items, achievements}) => ({name, twitchid, snacks, picture, weapon, helmet, footwear, misc, mainporo, poros, items, achievements})
           var user1 = await User.findByIdAndUpdate(currentUser2._id, { $set: { mainporo: currentUser2.mainporo, poros: currentUser2.poros, picture: currentUser2.picture } })
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
             .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
@@ -303,12 +302,11 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
             var token = generateToken()
-            console.log(removeTokens(user1))
             bcrypt.hash(token.toString(), 10, function(err, hash) {
               var session = Session({hash: hash, id: user1.userid, created: new Date()})
               session.save()
                 .then(res => {
-                  response.send({ user: removeTokens(user1), new_account: true, session: token })
+                  response.send({ user: {name: user1.name, twitchid: user1.twitchid, snacks: user1.snacks, picture: user1.picture, weapon: user1.weapon, helmet: user1.helmet, footwear: user1.footwear, misc: user1.miscc, mainporo: user1.mainporo, poros: user1.poros, items: user1.items, achievements: user1.achievements}, new_account: true, session: token })
                 })
                 .catch(error=> {
                   response.send({error: 1})
@@ -328,7 +326,7 @@ app.get('/login', async (request, response) => {
             var session = Session({hash: hash, id: user1.userid, created: new Date()})
             session.save()
               .then(res => {
-                response.send({ user: removeTokens(user1), new_account: false, session: token })
+                response.send({ user: {name: user1.name, twitchid: user1.twitchid, snacks: user1.snacks, picture: user1.picture, weapon: user1.weapon, helmet: user1.helmet, footwear: user1.footwear, misc: user1.miscc, mainporo: user1.mainporo, poros: user1.poros, items: user1.items, achievements: user1.achievements}, new_account: false, session: token })
               })
               .catch(error=> {
                 console.log("error: "+error)
