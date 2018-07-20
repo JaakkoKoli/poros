@@ -310,6 +310,7 @@ app.get('/login', async (request, response) => {
           response.send({ user: removeTokens(user1), new_account: true, session: createSession(user1._id) })
         } else {
           console.log("5")
+          console.log(createSession(user1._id))
           var user1 = await User.findById(currentUser[0]._id)
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
             .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
