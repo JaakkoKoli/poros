@@ -292,7 +292,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
             var token = generateToken()
             bcrypt.hash(token.toString(), 10, function(err, hash) {
-              var session = Session({hash: hash, id: user1.twitchid, created: new Date()})
+              var session = Session({hash: hash, userid: user1.twitchid, created: new Date()})
               session.save()
                 .then(res => {
                   response.send({ user: {name: user1.name, twitchid: user1.twitchid, snacks: user1.snacks, picture: user1.picture, weapon: user1.weapon, helmet: user1.helmet, footwear: user1.footwear, misc: user1.miscc, mainporo: user1.mainporo, poros: user1.poros, items: user1.items, achievements: user1.achievements}, new_account: true, session: token })
@@ -312,7 +312,7 @@ app.get('/login', async (request, response) => {
           var token = generateToken()
           bcrypt.hash(token.toString(), 10, function(err, hash) {
             console.log(hash)
-            var session = Session({hash: hash, id: user1.twitchid, created: new Date()})
+            var session = Session({hash: hash, userid: user1.twitchid, created: new Date()})
             session.save()
               .then(res => {
                 response.send({ user: {name: user1.name, twitchid: user1.twitchid, snacks: user1.snacks, picture: user1.picture, weapon: user1.weapon, helmet: user1.helmet, footwear: user1.footwear, misc: user1.miscc, mainporo: user1.mainporo, poros: user1.poros, items: user1.items, achievements: user1.achievements}, new_account: false, session: token })
