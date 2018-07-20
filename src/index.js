@@ -307,7 +307,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
             var token = generateToken()
-            bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
+            bcrypt.hash(token, 10, function(err, hash) {
               var session = Session({hash: hash, id: user1.userid, created: new Date()})
               session.save()
                 .then(res => {
@@ -330,7 +330,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
           console.log("6")
           var token = generateToken()
-          bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
+          bcrypt.hash(token, 10, function(err, hash) {
             console.log("7")
             var session = Session({hash: hash, id: user1.userid, created: new Date()})
             session.save()
