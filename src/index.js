@@ -331,6 +331,7 @@ app.get('/login', async (request, response) => {
           console.log("6")
           var token = generateToken()
           bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
+            console.log("7")
             var session = Session({hash: hash, id: user1.userid, created: new Date()})
             session.save()
               .then(res => {
