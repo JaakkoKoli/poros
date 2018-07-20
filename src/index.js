@@ -323,6 +323,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
           var token = generateToken()
           bcrypt.hash(token.toString(), 10, function(err, hash) {
+            console.log(hash)
             var session = Session({hash: hash, id: user1.userid, created: new Date()})
             session.save()
               .then(res => {
