@@ -329,6 +329,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
+          console.log("6")
           var token = generateToken()
           bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
             var session = Session({hash: hash, id: user1.userid, created: new Date()})
