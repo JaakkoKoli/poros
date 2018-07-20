@@ -69,7 +69,6 @@ app.get('/validatesession', async (request, response) => {
           .catch(error => {
             response.send({valid: false})
           })
-        response.send({valid: true, user: userdata})
       }else{
         Session.deleteMany({userid: request.get('Id')})
         response.send({valid: false})
