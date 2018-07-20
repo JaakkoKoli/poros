@@ -247,6 +247,7 @@ app.get('/login', async (request, response) => {
       const code = request.query.code
       const req = 'https://api.twitch.tv/api/oauth2/token?client_id=' + config.client_id + '&client_secret=' + config.secret + '&code=' + code + '&grant_type=authorization_code&redirect_uri=https://poros.herokuapp.com/'
       var res = await axios.post(req)
+      console.log("1")
       if (res.data.access_token) {
         const conf = {
           "headers": {
@@ -257,6 +258,7 @@ app.get('/login', async (request, response) => {
         }
         var r = await axios.get('https://api.twitch.tv/kraken', conf)
         var currentUser = await User.find({ twitchid: r.data.token.user_id }) // Is user in database?
+        console.log("2")
         if (currentUser.length === 0) { // Create a DB entry
           const newUser = User({
             name: r.data.token.user_name,
@@ -280,6 +282,7 @@ app.get('/login', async (request, response) => {
           var newPoro = poroutils.getPoro(types, currentUser2._id)
           var newPoro2 = await Poro(newPoro).save()
           currentUser2.mainporo = newPoro2._id
+          console.log("3")
           if (currentUser2.poros === undefined) {
             currentUser2.poros = [newPoro2._id]
           } else {
@@ -295,6 +298,7 @@ app.get('/login', async (request, response) => {
           }
           var userData = await axios.get('https://api.twitch.tv/helix/users?id=' + r.data.token.user_id, conf2)
           currentUser2.picture = userData.data.data[0].profile_image_url
+          console.log("4")
           const removeTokens = ({name, twitchid, snacks, picture, weapon, helmet, footwear, misc, mainporo, poros, items, achievements}) => ({name, twitchid, snacks, picture, weapon, helmet, footwear, misc, mainporo, poros, items, achievements})
           var user1 = await User.findByIdAndUpdate(currentUser2._id, { $set: { mainporo: currentUser2.mainporo, poros: currentUser2.poros, picture: currentUser2.picture } })
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
@@ -305,6 +309,7 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
           response.send({ user: removeTokens(user1), new_account: true, session: createSession(user1._id) })
         } else {
+          console.log("5")
           var user1 = await User.findById(currentUser[0]._id)
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
             .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
