@@ -27,7 +27,6 @@ const generateToken = () => {
 
 const createSession = (id) => {
   var token = generateToken()
-  console.log(token)
   bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
     var session = Session({hash: hash, id: id, created: new Date()})
     session.save()
@@ -307,7 +306,19 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-          response.send({ user: removeTokens(user1), new_account: true, session: createSession(user1._id) })
+            var token = generateToken()
+            bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
+              var session = Session({hash: hash, id: user1.userid, created: new Date()})
+              session.save()
+                .then(res => {
+                  console.log(res)
+                  response.send({ user: removeTokens(user1), new_account: true, session: token })
+                })
+                .catch(error=> {
+                  console.log("error: "+error)
+                  response.send({error})
+                })
+            })
         } else {
           console.log("5")
           console.log(createSession(user1._id))
@@ -318,7 +329,19 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-          response.send({ user: removeTokens(user1), new_account: false, session: createSession(user1._id) })
+          var token = generateToken()
+          bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
+            var session = Session({hash: hash, id: user1.userid, created: new Date()})
+            session.save()
+              .then(res => {
+                console.log(res)
+                response.send({ user: removeTokens(user1), new_account: false, session: token })
+              })
+              .catch(error=> {
+                console.log("error: "+error)
+                response.send({error})
+              })
+          })
         }
       }
     } else {
