@@ -46,12 +46,12 @@ app.use('/api/types', typesRouter)
 app.get('/validatesession', async (request, response) => {
   try{
     console.log(request.get('Id'))
-    var currentSession = await Session.find({userid: request.get('Id')})[0]
+    var currentSession = await Session.find({userid: request.get('Id')})
     console.log(currentSession)
-    bcrypt.compare(request.get('Token'), currentSession.hash, function(err, res) {
-      console.log(currentSession.created.getTime()+604800000+" : "+new Date().getTime())
+    bcrypt.compare(request.get('Token'), currentSession[0].hash, function(err, res) {
+      console.log(currentSession[0].created.getTime()+604800000+" : "+new Date().getTime())
       console.log("res: "+res)
-      if(currentSession.created.getTime()+604800000>new Date().getTime() && res){
+      if(currentSession[0].created.getTime()+604800000>new Date().getTime() && res){
         User.find({twitchid: request.get('Id')})
           .populate({ path: 'poros', populate: { path: 'type', model: Type } })
           .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
