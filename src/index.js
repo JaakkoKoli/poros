@@ -316,7 +316,7 @@ app.get('/login', async (request, response) => {
                 })
                 .catch(error=> {
                   console.log("error: "+error)
-                  response.send({error})
+                  response.send({error: 1})
                 })
             })
         } else {
@@ -339,7 +339,7 @@ app.get('/login', async (request, response) => {
               })
               .catch(error=> {
                 console.log("error: "+error)
-                response.send({error})
+                response.send({error: 2})
               })
           })
         }
@@ -349,7 +349,7 @@ app.get('/login', async (request, response) => {
     }
   }catch (exception) {
     console.log('error')
-    response.send({error: exception})
+    response.send({error: 3})
   }
 })
 
