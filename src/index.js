@@ -22,7 +22,158 @@ const mongoose = require('mongoose')
 const poroutils = require('./utils/poroutils')
 
 const generateToken = () => {
-  return(Math.round(Math.random()*10000000))
+  return (Math.round(Math.random() * 10000000))
+}
+
+const getUserById = (id) => {
+  return new Promise(resolve => {
+    User.findById(id)
+      .populate({ path: 'poros', populate: { path: 'type', model: Type } })
+      .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
+      .populate({ path: 'helmet', populate: { path: 'statchange', model: StatChange } })
+      .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
+      .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
+      .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
+      .then(users => {
+        if (users.length > 0) {
+          resolve(users[0])
+        } else {
+          resolve({ error: "Error finding user." })
+        }
+      })
+      .catch(() => {
+        resolve({ error: "Error finding user." })
+      })
+  })
+}
+
+const getUserByTwitchId = (id) => {
+  return new Promise(resolve => {
+    User.find({ twitchid: id })
+      .populate({ path: 'poros', populate: { path: 'type', model: Type } })
+      .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
+      .populate({ path: 'helmet', populate: { path: 'statchange', model: StatChange } })
+      .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
+      .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
+      .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
+      .then(users => {
+        if (users.length > 0) {
+          resolve(users[0])
+        } else {
+          resolve({ error: "Error finding user." })
+        }
+      })
+      .catch(() => {
+        resolve({ error: "Error finding user." })
+      })
+  })
+}
+
+const getUserBySession = (session, id) => {
+  return new Promise(resolve => {
+    Session.find({ userid: id })
+      .then(s => {
+        if (s) {
+          bcrypt.compare(session, s[0].hash, function (err, res) {
+            if(res){
+              User.find({ twitchid: s[0].userid })
+              .populate({ path: 'poros', populate: { path: 'type', model: Type } })
+              .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
+              .populate({ path: 'helmet', populate: { path: 'statchange', model: StatChange } })
+              .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
+              .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
+              .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
+              .then(users => {
+                if (users.length > 0) {
+                  resolve(users[0])
+                } else {
+                  resolve({ error: "Invalid session." })
+                }
+              })
+              .catch(() => {
+                resolve({ error: "Invalid session." })
+              })
+            }else{
+              resolve({ error: "Invalid session." })
+            }
+          })
+        } else {
+          resolve({ error: "Invalid session." })
+        }
+      })
+      .catch(() => {
+        resolve({ error: "Invalid session." })
+      })
+  })
+}
+
+const addPoroToUser = (userid, poro) => {
+  return new Promise(resolve => {
+    getUserById(userid)
+      .then(user => {
+        if (user) {
+          user.poros=user.poros.concat(poro)
+          user.save()
+            .then(res => {
+              resolve(res)
+            })
+            .catch(() => {
+              resolve({ error: "Error finding user." })
+            })
+        } else {
+          resolve({ error: "Error finding user." })
+        }
+      })
+      .catch(() => {
+        resolve({ error: "Error finding user." })
+      })
+  })
+}
+
+const changeMainPoro = (userid, poroid) => {
+  return new Promise(resolve => {
+    getUserById(userid)
+      .then(user => {
+        if (user) {
+          user.mainporo=poroid
+          user.save()
+            .then(res => {
+              resolve(res)
+            })
+            .catch(() => {
+              resolve({ error: "Error finding user." })
+            })
+        } else {
+          resolve({ error: "Error finding user." })
+        }
+      })
+      .catch(() => {
+        resolve({ error: "Error finding user." })
+      })
+  })
+}
+
+const addSnacksToUser = (userid, snacks) => {
+  return new Promise(resolve => {
+    getUserById(userid)
+      .then(user => {
+        if (user) {
+          user.snacks+=snacks
+          user.save()
+            .then(res => {
+              resolve(res)
+            })
+            .catch(() => {
+              resolve({ error: "Error finding user." })
+            })
+        } else {
+          resolve({ error: "Error finding user." })
+        }
+      })
+      .catch(() => {
+        resolve({ error: "Error finding user." })
+      })
+  })
 }
 
 mongoose
@@ -43,16 +194,21 @@ app.use('/api/poros', porosRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/types', typesRouter)
 
+app.get('/test', async (request, response) => {
+  try {
+    var u = await getUserBySession(request.query.session, request.query.id)
+    response.send(u)
+  } catch (error) {
+    response.send("error")
+  }
+})
+
 app.get('/validatesession', async (request, response) => {
-  try{
-    console.log(request.get('Id'))
-    var currentSession = await Session.find({userid: request.get('Id')})
-    console.log(currentSession)
-    bcrypt.compare(request.get('Token'), currentSession[0].hash, function(err, res) {
-      console.log(currentSession[0].created.getTime()+604800000+" : "+new Date().getTime())
-      console.log("res: "+res)
-      if(currentSession[0].created.getTime()+604800000>new Date().getTime() && res){
-        User.find({twitchid: request.get('Id')})
+  try {
+    var currentSession = await Session.find({ userid: request.get('Id') })
+    bcrypt.compare(request.get('Token'), currentSession[0].hash, function (err, res) {
+      if (currentSession[0].created.getTime() + 604800000 > new Date().getTime() && res) {
+        User.find({ twitchid: request.get('Id') })
           .populate({ path: 'poros', populate: { path: 'type', model: Type } })
           .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
           .populate({ path: 'helmet', populate: { path: 'statchange', model: StatChange } })
@@ -60,22 +216,22 @@ app.get('/validatesession', async (request, response) => {
           .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
           .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
           .then(result => {
-            if(result){
-              response.send({valid: true, user: result})
-            }else{
-              response.send({valid: false})
+            if (result) {
+              response.send({ valid: true, user: result })
+            } else {
+              response.send({ valid: false })
             }
           })
           .catch(error => {
-            response.send({valid: false})
+            response.send({ valid: false })
           })
-      }else{
-        Session.deleteMany({userid: request.get('Id')})
-        response.send({valid: false})
+      } else {
+        Session.deleteMany({ userid: request.get('Id') })
+        response.send({ valid: false })
       }
     })
-  }catch(e){
-    response.send({valid: false})
+  } catch (e) {
+    response.send({ valid: false })
   }
 })
 
@@ -172,7 +328,7 @@ app.get('/addsnacks', async (request, response) => {
         .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
         .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
         .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-      response.send({message: 'Added '+request.query.amount+' snacks to user '+request.query.username, user: res})
+      response.send({ message: 'Added ' + request.query.amount + ' snacks to user ' + request.query.username, user: res })
     } else {
       response.send('error')
     }
@@ -218,7 +374,7 @@ app.get('/buyporo', async (request, response) => {
     } else {
       response.send({ error: 'invalid session' })
     }
-  }catch (exception) {
+  } catch (exception) {
     response.send(exception)
   }
 })
@@ -289,17 +445,17 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'weapon', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
-            var token = generateToken()
-            bcrypt.hash(token.toString(), 10, function(err, hash) {
-              var session = Session({hash: hash, userid: user1.twitchid, created: new Date()})
-              session.save()
-                .then(res => {
-                  response.send({ user: {name: user1.name, twitchid: user1.twitchid, snacks: user1.snacks, picture: user1.picture, weapon: user1.weapon, helmet: user1.helmet, footwear: user1.footwear, misc: user1.miscc, mainporo: user1.mainporo, poros: user1.poros, items: user1.items, achievements: user1.achievements}, new_account: true, session: token })
-                })
-                .catch(error=> {
-                  response.send({error: 1})
-                })
-            })
+          var token = generateToken()
+          bcrypt.hash(token.toString(), 10, function (err, hash) {
+            var session = Session({ hash: hash, userid: user1.twitchid, created: new Date() })
+            session.save()
+              .then(res => {
+                response.send({ user: { name: user1.name, twitchid: user1.twitchid, snacks: user1.snacks, picture: user1.picture, weapon: user1.weapon, helmet: user1.helmet, footwear: user1.footwear, misc: user1.miscc, mainporo: user1.mainporo, poros: user1.poros, items: user1.items, achievements: user1.achievements }, new_account: true, session: token })
+              })
+              .catch(error => {
+                response.send({ error: 1 })
+              })
+          })
         } else {
           var user1 = await User.findById(currentUser[0]._id)
             .populate({ path: 'poros', populate: { path: 'type', model: Type } })
@@ -309,16 +465,16 @@ app.get('/login', async (request, response) => {
             .populate({ path: 'misc', populate: { path: 'statchange', model: StatChange } })
             .populate({ path: 'footwear', populate: { path: 'statchange', model: StatChange } })
           var token = generateToken()
-          bcrypt.hash(token.toString(), 10, function(err, hash) {
+          bcrypt.hash(token.toString(), 10, function (err, hash) {
             console.log(hash)
-            var session = Session({hash: hash, userid: user1.twitchid, created: new Date()})
+            var session = Session({ hash: hash, userid: user1.twitchid, created: new Date() })
             session.save()
               .then(res => {
-                response.send({ user: {name: user1.name, twitchid: user1.twitchid, snacks: user1.snacks, picture: user1.picture, weapon: user1.weapon, helmet: user1.helmet, footwear: user1.footwear, misc: user1.miscc, mainporo: user1.mainporo, poros: user1.poros, items: user1.items, achievements: user1.achievements}, new_account: false, session: token })
+                response.send({ user: { name: user1.name, twitchid: user1.twitchid, snacks: user1.snacks, picture: user1.picture, weapon: user1.weapon, helmet: user1.helmet, footwear: user1.footwear, misc: user1.miscc, mainporo: user1.mainporo, poros: user1.poros, items: user1.items, achievements: user1.achievements }, new_account: false, session: token })
               })
-              .catch(error=> {
-                console.log("error: "+error)
-                response.send({error: 2})
+              .catch(error => {
+                console.log("error: " + error)
+                response.send({ error: 2 })
               })
           })
         }
@@ -326,36 +482,25 @@ app.get('/login', async (request, response) => {
     } else {
       response.send({ error: 'missing code' })
     }
-  }catch (exception) {
+  } catch (exception) {
     console.log('error')
-    response.send({error: 3})
+    response.send({ error: 3 })
   }
 })
 
 app.get('/setmainporo', async (request, response) => {
   try {
-    if (request.query.id&&request.query.token) {
-      const id = request.query.id
-      const token = request.query.token
-      const conf = {
-        "headers": {
-          "Authorization": 'OAuth ' + token,
-          "Accept": 'application/vnd.twitchtv.v5+json',
-          "Client-ID": config.client_id
-        }
-      }
-      var r = await axios.get('https://api.twitch.tv/kraken', conf)
-      var currentUser = await User.find({twitchid: r.data.token.user_id})
-      if(currentUser[0].poros.filter(x => x == id).length>0){
-        const u = await User.findByIdAndUpdate(currentUser[0]._id, {$set: {mainporo: id}})
-        response.send('Main Poro changed')
+    if (request.query.userid && request.query.id && request.query.session) {
+      var currentUser = await getUserBySession(request.query.session, request.query.userid)
+      if (currentUser.poros.filter(x => x == request.query.id).length > 0) {
+        const u = await User.findByIdAndUpdate(currentUser._id, { $set: { mainporo: request.query.id } })
+        response.send({message: 'Main Poro changed'})
       }
     } else {
-      response.send('missing id')
+      response.send({error: 'Error'})
     }
-  }catch (exception) {
-    console.log('error')
-    response.send(exception)
+  } catch (error) {
+    response.send({error})
   }
 })
 
