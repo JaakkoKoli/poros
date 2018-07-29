@@ -207,7 +207,7 @@ app.get('/validatesession', async (request, response) => {
   try {
     var currentSession = await Session.find({ userid: request.get('Id') })
     bcrypt.compare(request.get('Token'), currentSession[0].hash, function (err, res) {
-      if (currentSession[0].created.getTime() + 604800000 > new Date().getTime() && res) {
+      if (currentSession[0].created.getTime() + 604800000*7 > new Date().getTime() && res) {
         User.find({ twitchid: request.get('Id') })
           .populate({ path: 'poros', populate: { path: 'type', model: Type } })
           .populate({ path: 'mainporo', populate: { path: 'type', model: Type } })
@@ -226,7 +226,7 @@ app.get('/validatesession', async (request, response) => {
             response.send({ valid: false })
           })
       } else {
-        Session.deleteMany({ userid: request.get('Id') })
+        await Session.deleteMany({ userid: request.get('Id') })
         response.send({ valid: false })
       }
     })
