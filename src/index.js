@@ -226,8 +226,9 @@ app.get('/validatesession', async (request, response) => {
             response.send({ valid: false })
           })
       } else {
-        await Session.deleteMany({ userid: request.get('Id') })
-        response.send({ valid: false })
+        Session.deleteMany({ userid: request.get('Id') })
+          .then(r => response.send({ valid: false }))
+          .catch(e => response.send({ valid: false }))
       }
     })
   } catch (e) {
